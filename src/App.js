@@ -26,49 +26,41 @@ class App extends Component {
       couponCode: this.state.couponCode
     };
 
-    // Don't forget to apply code destructuring
-    if (bill.personCount < 14) {
-      if (bill.couponCode === 'LUCKY ONE') {
-        bill.billValue = (bill.personCount * 459 * 15) / 100;
-      } else if (bill.couponCode === 'LUCKY TWO') {
-        bill.billValue = (bill.personCount * 459 * 20) / 100;
-      } else if (bill.couponCode === '4PAY3') {
-        let personDiscount = bill.personCount / 4;
-        if (personDiscount >= 1) {
-          if (bill.personCount % 4 === 0) {
-            console.log('4PAY3 is a success');
-            bill.personFinalCount = bill.personCount - personDiscount;
-            bill.billValue = bill.personFinalCount * 459;
-          } else if (bill.personCount % 4 !== 0) {
-            let exceedingPerson = bill.personCount % 4;
-            console.log(exceedingPerson);
-            switch (exceedingPerson) {
-              case 0.75:
-                bill.billValue = bill.personFinalCount * 459;
-                break;
-              case 1.5:
-                bill.personCount = bill.personCount + 1;
-                bill.billValue = bill.personCount * 459;
-                break;
-              case 2.25:
-                bill.personCount = bill.personCount + 2;
-                bill.billValue = bill.personCount * 459;
-                break;
-              default:
-                bill.billValue = bill.personCount * 459;
-            }
+    let { couponCode, personCount } = bill;
+
+    // The assignment said these rules can be in a combination, need to separate them apart as objects.
+
+    if (personCount < 14) {
+      if (couponCode === 'LUCKY ONE' || personCount * 459 >= 1000) {
+        bill.billValue = personCount * 459 - (personCount * 459 * 15) / 100;
+      } else if (couponCode === 'LUCKY TWO') {
+        bill.billValue = personCount * 459 - (personCount * 459 * 20) / 100;
+      } else if (couponCode === '4PAY3') {
+        if (personCount > 3) {
+          let personDeduct = personCount / 4;
+          let exceedingPersonRatio = personDeduct % 1;
+          let personDuringDisount = 0;
+
+          if (exceedingPersonRatio !== 0) {
+            personDeduct = Math.floor(personDeduct);
           }
+
+          personDuringDisount = personCount - personDeduct;
+          bill.personFinalCount = personDuringDisount;
+          bill.billValue = bill.personFinalCount * 459;
         } else {
-          bill.billValue = bill.personCount * 459;
+          bill.billValue = personCount * 459;
           console.log(
             'This coupon code is not applicable for your total payment amount.'
           );
         }
       } else {
-        bill.billValue = bill.personCount * 459;
+        bill.billValue = personCount * 459;
       }
     } else {
-      console.log((bill.billValue = (bill.personCount * 459 * 25) / 100));
+      console.log(
+        (bill.billValue = personCount * 459 - (personCount * 459 * 25) / 100)
+      );
     }
 
     console.log(bill);

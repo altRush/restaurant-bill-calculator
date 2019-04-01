@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import CouponCard from './CouponCard';
 
 export default class CouponForm extends Component {
   constructor(props) {
@@ -20,6 +21,7 @@ export default class CouponForm extends Component {
 
   onSubmit(e) {
     e.preventDefault();
+    this.setState({ [e.target.name]: e.target.value });
     const bill = {
       personCount: parseInt(this.state.personCount),
       billValue: this.state.billValue,
@@ -100,27 +102,38 @@ export default class CouponForm extends Component {
       return estimatedBill;
     };
 
+    const over6000 = estimatedBill => {
+      return (estimatedBill = Math.floor(
+        estimatedBill - (estimatedBill * 25) / 100
+      ));
+    };
+
     let couponCase = '';
-    if (
-      (couponStack.indexOf('LUCKY ONE') !== -1 ||
-        couponStack.indexOf('LUCKY TWO') !== -1) &&
-      couponStack.indexOf('4PAY3') === -1
-    ) {
-      couponCase = 'lucky';
-    } else if (
-      couponStack.indexOf('LUCKY ONE') === -1 &&
-      couponStack.indexOf('LUCKY TWO') === -1 &&
-      couponStack.indexOf('4PAY3') !== -1
-    ) {
-      couponCase = 'fourPayThree';
-    } else if (
-      (couponStack.indexOf('LUCKY ONE') !== -1 ||
-        couponStack.indexOf('LUCKY TWO') !== -1) &&
-      couponStack.indexOf('4PAY3') !== -1
-    ) {
-      couponCase = 'luckyFourPayThree';
+    if (estimatedBill <= 6000) {
+      if (
+        (couponStack.indexOf('LUCKY ONE') !== -1 ||
+          couponStack.indexOf('LUCKY TWO') !== -1) &&
+        couponStack.indexOf('4PAY3') === -1
+      ) {
+        couponCase = 'lucky';
+      } else if (
+        couponStack.indexOf('LUCKY ONE') === -1 &&
+        couponStack.indexOf('LUCKY TWO') === -1 &&
+        couponStack.indexOf('4PAY3') !== -1
+      ) {
+        couponCase = 'fourPayThree';
+      } else if (
+        (couponStack.indexOf('LUCKY ONE') !== -1 ||
+          couponStack.indexOf('LUCKY TWO') !== -1) &&
+        couponStack.indexOf('4PAY3') !== -1
+      ) {
+        couponCase = 'luckyFourPayThree';
+      }
     } else {
-      couponCase = 'No case';
+      if (couponStack.indexOf('OVER 6000') === -1) {
+        couponStack.push('OVER 6000');
+        couponCase = 'over6000';
+      }
     }
 
     switch (couponCase) {
@@ -133,29 +146,22 @@ export default class CouponForm extends Component {
       case 'luckyFourPayThree':
         estimatedBill = lucky(fourPayThree(estimatedBill));
         break;
+      case 'over6000':
+        estimatedBill = over6000(estimatedBill);
+        break;
       default:
-        return estimatedBill;
+        console.log('Standard payment: ');
+      // return estimatedBill;
     }
 
     console.log(`Estimated bill: ${estimatedBill}`);
-
-    // if (estimatedBill > 6000) {
-    //   bill.couponStack.length = 0;
-    //   console.log(
-    //     (bill.billValue = Math.floor(
-    //       estimatedBill - (estimatedBill * 25) / 100
-    //     ))
-    //   );
-    // } else {
-    //   console.log(estimatedBill);
-
-    // }
 
     bill.billValue = estimatedBill;
 
     console.log(`Grand total: `);
     console.log(bill);
   }
+
   render() {
     return (
       <div>
@@ -164,6 +170,7 @@ export default class CouponForm extends Component {
           Person count:{' '}
           <input
             type="number"
+            min="0"
             name="personCount"
             id="personCount"
             value={this.state.personCount}
@@ -181,6 +188,7 @@ export default class CouponForm extends Component {
           <br />
           <button type="submit">Check</button>
         </form>
+        <CouponCard coupon={this.state.couponStack} />
       </div>
     );
   }

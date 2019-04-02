@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import CouponCard from './CouponCard';
+import BillResults from './BillResults';
 
 export default class CouponForm extends Component {
   constructor(props) {
@@ -8,7 +9,8 @@ export default class CouponForm extends Component {
       billValue: '',
       personCount: '',
       couponCode: '',
-      couponStack: []
+      couponStack: [],
+      remark: ''
     };
 
     this.onChange = this.onChange.bind(this);
@@ -25,19 +27,23 @@ export default class CouponForm extends Component {
     const bill = {
       personCount: parseInt(this.state.personCount),
       billValue: this.state.billValue,
-      couponStack: this.state.couponStack
+      couponStack: this.state.couponStack,
+      remark: this.state.remark
     };
 
     const couponCode = this.state.couponCode;
     let { couponStack, personCount } = bill;
-    // The assignment said these rules can be in a combination, need to separate them apart as objects.
 
     if (couponCode === 'LUCKY ONE') {
       if (couponStack.indexOf('LUCKY ONE') === -1) {
         couponStack.push('LUCKY ONE');
-        // console.log(bill);
+        this.setState({
+          remark: (bill.remark = 'You used "LUCKY ONE" coupon code : )')
+        });
       } else {
-        console.log('"LUCKY ONE" coupon code is already applied!');
+        this.setState({
+          remark: (bill.remark = '"LUCKY ONE" coupon code is already applied')
+        });
       }
     }
 
@@ -45,12 +51,19 @@ export default class CouponForm extends Component {
       if (personCount > 1) {
         if (couponStack.indexOf('LUCKY TWO') === -1) {
           couponStack.push('LUCKY TWO');
-          // console.log(bill);
+          this.setState({
+            remark: (bill.remark = 'You used "LUCKY TWO" coupon code : )')
+          });
         } else {
-          console.log('"LUCKY TWO" coupon code is already applied!');
+          this.setState({
+            remark: (bill.remark =
+              '"LUCKY TWO" coupon code is already applied!')
+          });
         }
       } else {
-        console.log('This coupon code is not applicable for you.');
+        this.setState({
+          remark: (bill.remark = 'This coupon code is not applicable for you.')
+        });
       }
     }
 
@@ -58,12 +71,18 @@ export default class CouponForm extends Component {
       if (personCount > 3) {
         if (couponStack.indexOf('4PAY3') === -1) {
           couponStack.push('4PAY3');
-          // console.log(bill);
+          this.setState({
+            remark: (bill.remark = 'You used "4PAY3" coupon code : )')
+          });
         } else {
-          console.log('"4PAY3" coupon code is already applied!');
+          this.setState({
+            remark: (bill.remark = '"4PAY3" coupon code is already applied!')
+          });
         }
       } else {
-        console.log('This coupon code is not applicable for you.');
+        this.setState({
+          remark: (bill.remark = 'This coupon code is not applicable for you.')
+        });
       }
     }
 
@@ -73,10 +92,8 @@ export default class CouponForm extends Component {
     const lucky = estimatedBill => {
       if (couponStack.indexOf('LUCKY TWO') !== -1) {
         estimatedBill = Math.floor(estimatedBill - (estimatedBill * 20) / 100);
-        console.log(`This is LUCKY TWO`);
       } else if (couponStack.indexOf('LUCKY ONE') !== -1) {
         estimatedBill = Math.floor(estimatedBill - (estimatedBill * 15) / 100);
-        console.log(`This is LUCKY ONE`);
       }
       return estimatedBill;
     };
@@ -93,16 +110,20 @@ export default class CouponForm extends Component {
 
         personDuringDisount = personCount - personDeduct;
         bill.personFinalCount = personDuringDisount;
-        console.log('This is 4PAY3');
         estimatedBill = Math.floor(bill.personFinalCount * 459);
       } else {
         estimatedBill = Math.floor(estimatedBill);
-        console.log('This coupon code is not applicable for you.');
+        this.setState({
+          remark: (bill.remark = 'This coupon code is not applicable for you.')
+        });
       }
       return estimatedBill;
     };
 
     const over6000 = estimatedBill => {
+      this.setState({
+        remark: (bill.remark = `Your bill has went over 6000 Baht and got special 25% off from us!`)
+      });
       return (estimatedBill = Math.floor(
         estimatedBill - (estimatedBill * 25) / 100
       ));
@@ -130,7 +151,7 @@ export default class CouponForm extends Component {
         couponCase = 'luckyFourPayThree';
       }
     } else {
-      if (couponStack.indexOf('OVER 6000') === -1) {
+      if (couponStack.indexOf('OVER 6000') === -1 && estimatedBill > 6000) {
         couponStack.push('OVER 6000');
         couponCase = 'over6000';
       }
@@ -150,16 +171,9 @@ export default class CouponForm extends Component {
         estimatedBill = over6000(estimatedBill);
         break;
       default:
-        console.log('Standard payment: ');
-      // return estimatedBill;
+      // console.log('Standard payment: ');
     }
-
-    console.log(`Estimated bill: ${estimatedBill}`);
-
-    bill.billValue = estimatedBill;
-
-    console.log(`Grand total: `);
-    console.log(bill);
+    this.setState({ billValue: (bill.billValue = estimatedBill) });
   }
 
   render() {
@@ -188,6 +202,11 @@ export default class CouponForm extends Component {
           <br />
           <button type="submit">Check</button>
         </form>
+        <BillResults
+          sum={this.state.billValue}
+          person={this.state.personCount}
+          remark={this.state.remark}
+        />
         <CouponCard coupon={this.state.couponStack} />
       </div>
     );

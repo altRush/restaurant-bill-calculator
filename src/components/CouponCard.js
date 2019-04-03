@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { black } from 'ansi-colors';
 
 export default class CouponCard extends Component {
   render() {

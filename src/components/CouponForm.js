@@ -150,6 +150,7 @@ export default class CouponForm extends Component {
       ) {
         couponCase = 'luckyFourPayThree';
       }
+      couponStack.splice(couponStack.indexOf('OVER 6000'), 1);
     } else {
       if (couponStack.indexOf('OVER 6000') === -1 && estimatedBill > 6000) {
         couponStack.push('OVER 6000');

@@ -150,7 +150,9 @@ export default class CouponForm extends Component {
       ) {
         couponCase = 'luckyFourPayThree';
       }
-      couponStack.splice(couponStack.indexOf('OVER 6000'), 1);
+      if (couponStack.indexOf('OVER 6000') !== -1) {
+        couponStack.splice(couponStack.indexOf('OVER 6000'), 1);
+      }
     } else {
       if (couponStack.indexOf('OVER 6000') === -1 && estimatedBill > 6000) {
         couponStack.push('OVER 6000');
@@ -180,28 +182,47 @@ export default class CouponForm extends Component {
   render() {
     return (
       <div>
-        <h1>Enter the coupon code</h1>
+        <h1>Resto Bill</h1>
         <form onSubmit={this.onSubmit}>
-          Person count:{' '}
-          <input
-            type="number"
-            min="0"
-            name="personCount"
-            id="personCount"
-            value={this.state.personCount}
-            onChange={this.onChange}
-          />
-          <br />
-          Coupon Code:{' '}
-          <input
-            type="text"
-            name="couponCode"
-            id="couponCode"
-            value={this.state.couponCode}
-            onChange={this.onChange}
-          />{' '}
-          <br />
-          <button type="submit">Check</button>
+          <table className="center">
+            <tbody>
+              <tr>
+                <td className="tr">Person:</td>
+                <td>
+                  <input
+                    type="number"
+                    min="0"
+                    name="personCount"
+                    id="personCount"
+                    value={this.state.personCount}
+                    onChange={this.onChange}
+                    className="br3 tc"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td className="tr">Coupon Code:</td>
+                <td>
+                  <input
+                    type="text"
+                    name="couponCode"
+                    id="couponCode"
+                    value={this.state.couponCode}
+                    onChange={this.onChange}
+                    className="br3 tc"
+                  />{' '}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <button
+              className="f6 br-pill ph3 pv2 mb2 dib white bg-dark-blue"
+              type="submit"
+            >
+              Add coupon / Validate Bill
+            </button>
+          </p>
         </form>
         <BillResults
           sum={this.state.billValue}
